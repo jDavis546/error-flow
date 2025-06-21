@@ -33,5 +33,62 @@ ErrorFlow is a modern, full-stack support ticketing system designed to streamlin
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/errorflow.git
+   git clone https://github.com/jDavis546/errorflow.git
    cd errorflow
+
+2. **Install dependencies**:
+
+   ```bash
+   npm install
+
+3. **Set up environment variables**:
+
+   Create a .env file in the root directory and add the following:
+
+   ```bash
+   DATABASE_URL="your-neon-postgresql-connection-string"
+   NEXT_PUBLIC_SENTRY_DSN="your-sentry-dsn"
+   SENTRY_AUTH_TOKEN="your-sentry-auth-token"
+   NEXTAUTH_URL="<http://localhost:3000>"
+   NEXTAUTH_SECRET="your-nextauth-secret"
+
+4. **Set up the database**:
+
+   ```bash
+   npx prisma migrate dev --name init
+
+5. **Set up the database**:
+
+   ```bash
+   npm run dev
+
+
+Open <http://localhost:3000> in your browser.
+
+### Configuration
+
+-**Neon PostgreSQL**: Sign up at Neon and obtain your database connection string.
+
+- **Sentry**: Create a project in Sentry and configure the DSN in your .env file.
+
+- **Prisma**: Update the schema.prisma file if you need to modify the database schema, then run npx prisma generate.
+
+### Contributing
+
+We welcome contributions! Please follow these steps:
+
+- Fork the repository.
+
+- Create a new branch (git checkout -b feature/your-feature).
+
+- Commit your changes (git commit -m 'Add your feature').
+
+- Push to the branch (git push origin feature/your-feature).
+
+- Open a Pull Request.
+
+**License**
+This project is licensed under the MIT License (LICENSE).
+
+**Contact**
+For questions or feedback, reach out via GitHub Issues or connect with us on X.
