@@ -33,18 +33,72 @@ export async function createTicket(
     );
 
 
-
     revalidatePath('/tickets');
 
-    return { success: true, message: 'Ticket created successfully' };   
+    return { 
+      success: true, message: 'Ticket created successfully' };   
   }catch(error){
     logEvent(
       'Error creating ticket', 
       'ticket',
-      { formData: Object.fromEntries(formDate.entries()), error }, 'error', 
+      { 
+        formData: Object.fromEntries(formDate.entries()), 
+        error 
+      }, 
+        'error', 
       error
     );
 
-    return { success: false, message: 'An error occured while created the ticket.' };    
+    return { 
+      success: false, 
+      message: 'An error occured while created the ticket.' 
+    };    
+  }
+}
+
+export async function getTickets(){
+  try {
+    const tickets = await prisma.ticket.findMany({
+      orderBy: { createdAt: 'desc'}});
+    
+    logEvent('Fetched tickets successfully', 'ticket', { count: tickets.length }, 'info');
+    return tickets;
+
+  } catch(error) {
+    logEvent(
+      'Error fetching tickets', 
+      'ticket', 
+      {}, 
+      'error', 
+      error
+    );
+    Sentry.captureException(error);
+    return [];
+  }
+}
+
+export async function getTicketById(id: string) {
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(id) }
+    });
+
+    if (!ticket) {
+      logEvent('Ticket not found', 'ticket', { ticketId: id }, 'warning');
+      return null;
+    }
+
+    logEvent('Fetched ticket successfully', 'ticket', { ticketId: id }, 'info');
+    return ticket;
+
+  } catch (error) {
+    logEvent(
+      'Error fetching ticket by ID',
+      'ticket',
+      { ticketId: id },
+      'error',
+      error
+    );
+    return null;
   }
 }
