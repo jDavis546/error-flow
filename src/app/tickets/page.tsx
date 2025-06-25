@@ -10,7 +10,7 @@ const TicketsPage = async () => {
   
   return ( <section className="min-h-screen bg-blue p-8">
     <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">Support Tickets</h1>
-    {tickets.length === 0 ? (<p className="">No Tickets Yet</p>) : (
+    {tickets.length === 0 ? (<p className="text-center text-gray-600">No Tickets Yet</p>) : (
       <ul className="space-y-4 max-w-xl mx-auto">
         {tickets.map((ticket) => (
           <li key={ticket.id} className="flex justify-between items-center bg-white p-4 rounded shadow border border-gray-200 p6">
