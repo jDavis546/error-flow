@@ -2,11 +2,17 @@ import { getTickets } from "@/actions/ticket.actions";
 import { LoggingConfig } from "next/dist/server/config-shared";
 import Link from "next/link";
 import { getPriorityClass } from "@/utils/ui";
+import { getCurrentUser } from "@/lib/current-user";
+import { redirect } from "next/navigation";
 
 
 const TicketsPage = async () => {
   const tickets = await getTickets();
-  
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect('/login');
+  }
   
   return ( <section className="min-h-screen bg-blue p-8">
     <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">Support Tickets</h1>

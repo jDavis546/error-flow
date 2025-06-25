@@ -3,12 +3,21 @@ import * as Sentry from '@sentry/nextjs'
 import { prisma } from '@/db/prisma';
 import { revalidatePath } from 'next/cache';
 import { logEvent } from '@/utils/sentry';
+import { getCurrentUser } from '@/lib/current-user';
 
 export async function createTicket(
   prevState: { success: boolean; message: string}, 
   formDate: FormData
 ): Promise<{success: boolean; message: string}>{
   try{
+    const user = await getCurrentUser();
+    if (!user) {
+      logEvent('User not authenticated', 'ticket', {}, 'warning');
+      return { success: false, message: 'You must be logged in to create a ticket.' };
+    }
+
+
+
     const subject = formDate.get('subject') as string
     const description = formDate.get('description') as string
     const priority = formDate.get('priority') as string
@@ -22,7 +31,9 @@ export async function createTicket(
 
     // Create the ticket in the database
     const ticket = await prisma.ticket.create({
-      data: {subject, description, priority}
+      data: {subject, description, priority, User: {
+        connect: { id: user.id  }
+      } }
     });
 
     logEvent(
