@@ -69,8 +69,16 @@ export async function createTicket(
 
 export async function getTickets(){
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      logEvent('User not authenticated', 'ticket', {}, 'warning');
+      return [];
+    }
+
     const tickets = await prisma.ticket.findMany({
-      orderBy: { createdAt: 'desc'}});
+      orderBy: { createdAt: 'desc'},
+      where: { User: { id: user.id } },
+    });
     
     logEvent('Fetched tickets successfully', 'ticket', { count: tickets.length }, 'info');
     return tickets;
@@ -112,4 +120,40 @@ export async function getTicketById(id: string) {
     );
     return null;
   }
+}
+
+// Close ticket action
+export async function closeTicket(prevState: { success: boolean; message: string }, formDate: FormData): Promise<{ success: boolean; message: string }>  {
+  const ticketId = formDate.get('ticketId') as string;
+  if (!ticketId){
+    logEvent('Validation error: Ticket ID is required', 'ticket', {}, 'warning');
+    return { success: false, message: 'Ticket ID is required.' };
+  }
+
+  const user = await getCurrentUser();
+  if (!user) { 
+    logEvent('User not authenticated', 'ticket', {}, 'warning');
+    return { success: false, message: 'You must be logged in to close a ticket.' };
+  }
+
+  const ticket = await prisma.ticket.findUnique({
+    where: { id: Number(ticketId) }
+  });
+
+  if (!ticket || ticket.userId !== user.id) {
+    logEvent('Ticket not found', 'ticket', { ticketId }, 'warning');
+    return { success: false, message: 'Ticket not found.' };
+  }
+
+  await prisma.ticket.update({
+    where: { id: Number(ticketId) },
+    data: { status: 'Closed' }
+  });
+
+  revalidatePath('/tickets');
+  revalidatePath(`/tickets/${ticketId}`);
+
+  return {
+    success: true, message: 'Ticket closed successfully.'
+  };
 }
